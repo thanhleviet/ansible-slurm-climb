@@ -1,0 +1,4 @@
+---
+download_folder: '{{ansible_env.PWD}}'
+install_folder: '{{ansible_env.PWD}}'
+miniconda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh

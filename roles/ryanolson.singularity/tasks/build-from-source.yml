@@ -1,0 +1,28 @@
+---
+
+- name: install basic packages 
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600 
+  with_items: 
+    - automake
+    - build-essential
+    - libtool
+    - git
+
+- name: clone source
+  git:
+    repo: https://github.com/singularityware/singularity.git
+    dest: "{{ singularity_build_path }}"
+    version: "{{ singularity_version }}"
+
+- name: autogen
+  command: ./autogen.sh chdir={{ singularity_build_path }}
+
+- name: configure
+  command: ./configure --prefix={{ singularity_install_path }} --sysconfdir={{ singularity_config_path }} chdir={{ singularity_build_path }}
+
+- name: make
+  command: make chdir={{ singularity_build_path }}
+
+- name: install
+  command: make install chdir={{ singularity_build_path }}
+

@@ -1,0 +1,35 @@
+---
+- name: Collect server metadata
+  action: setup
+
+- name: Ensure miniconda is installed
+  stat:
+    path: '{{install_folder}}/miniconda/bin/conda'
+  register: conda_exist
+
+- name: Download miniconda
+  get_url:
+    url: '{{ miniconda_url }}'
+    dest: '{{ download_folder }}/miniconda.sh'
+    mode: 0770
+  when: conda_exist.stat.exists == False
+
+- name: Install miniconda
+  shell: '{{ download_folder }}/miniconda.sh -b -p {{install_folder}}/miniconda'
+  when: conda_exist.stat.exists == False
+
+- name: Remove miniconda installer
+  file:
+    path: '{{ download_folder }}/miniconda.sh'
+    state: absent
+  when: conda_exist.stat.exists == False
+
+- name: Update path
+  shell: echo 'export PATH={{install_folder}}/miniconda/bin:$PATH' >> ~/.bashrc && . ~/.bashrc
+  when: conda_exist.stat.exists == False
+
+- name: Install nextflow via conda
+  conda:
+    executable: '{{install_folder}}/miniconda/bin/conda'
+    name: nextflow
+    channels: bioconda

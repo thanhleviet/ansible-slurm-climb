@@ -1,0 +1,8 @@
+---
+
+- name: check for executable
+  stat: path={{ singularity_install_path }}/bin/singularity
+  register: singularity_exe
+
+- include: "build-from-source.yml"
+  when: singularity_exe.stat.exists == False

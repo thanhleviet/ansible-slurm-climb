@@ -1,0 +1,10 @@
+---
+- name: Install conda and nextflow
+  hosts: slurm_master
+  become: no
+  gather_facts: no
+  vars_files:
+    - group_vars/all
+  ignore_errors: yes
+  roles:
+    - miniconda

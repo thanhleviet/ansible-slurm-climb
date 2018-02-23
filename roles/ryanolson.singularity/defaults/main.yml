@@ -1,0 +1,4 @@
+singularity_version: 2.2
+singularity_install_path: /usr/local
+singularity_config_path: /etc
+singularity_build_path: /tmp/singularity

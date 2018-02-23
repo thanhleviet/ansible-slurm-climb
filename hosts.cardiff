@@ -1,0 +1,15 @@
+[slurm_master]
+thanhlv-master  ansible_host=131.251.130.47
+
+[slurm_worker]
+thanhlv-node7   ansible_host=131.251.130.107
+thanhlv-node6   ansible_host=131.251.130.98
+thanhlv-node5   ansible_host=131.251.130.93
+thanhlv-node4   ansible_host=131.251.130.60
+thanhlv-node3   ansible_host=131.251.130.53
+thanhlv-node2   ansible_host=131.251.130.75
+thanhlv-node1   ansible_host=131.251.130.61
+
+[cardiff:children]
+slurm_master
+slurm_worker

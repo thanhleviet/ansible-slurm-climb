@@ -1,0 +1,29 @@
+# bigtop/tasks/main.yml
+---
+- name: Check playbook compatibility with host platform
+  fail:
+    msg="PySpark/Hadoop installation only works on Debian/Ubuntu presently."
+  when: not is_debian_or_ubuntu
+
+  
+- name: add signing key for Apache Bigtop repository
+  apt_key:
+    url: "http://www.apache.org/dist/bigtop/bigtop-{{ bigtop_release }}/repos/GPG-KEY-bigtop"
+    state: present
+
+  
+- name: add Apache Bigtop repository
+  apt_repository:
+    # download from: http://www.apache.org/dist/bigtop/bigtop-1.2.1/repos/ubuntu16.04/bigtop.list
+    repo='deb http://repos.bigtop.apache.org/releases/{{bigtop_release}}/{{ansible_distribution|lower}}/{{ansible_distribution_version}}/x86_64 bigtop contrib'
+    state=present
+
+
+# this is run as task and not as a handler, since handlers are all
+# executed after *all* tasks in the play have run, and we need the
+# package cache to be up-to-date immediately for subsequent install
+# tasks to succeed...
+- name: update APT cache
+  apt:
+    update_cache=yes
+    cache_valid_time=86400

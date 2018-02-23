@@ -1,0 +1,84 @@
+---
+
+- name: Prepare VM for running Ansible
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ensure Python is installed
+      script: |
+        install-py2.sh {{ ansible_python_interpreter|default("/usr/bin/python") }}
+      args:
+        creates: '{{ ansible_python_interpreter|default("/usr/bin/python") }}'
+      become: yes
+
+- name: Install requirement on master and nodes
+  hosts: cardiff
+  gather_facts: no
+  become: yes
+  roles:
+    - role: etchosts
+      hosts_groupname: cardiff
+    - role: ryanolson.singularity
+      singularity_version: 2.4.2
+    - role: geerlingguy.docker
+    # - role: r
+
+- name: Slurm master Playbook
+  hosts: slurm_master
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - group_vars/all
+  ignore_errors: yes
+  roles:
+    - role: nfs-server
+      NFS_EXPORTS:
+        - path: '/home'
+          clients: "{{groups.slurm_worker + groups.slurm_submit|default([])}}"
+    - slurm-master
+    - { role: miniconda, become: no }
+
+- name: Slurm worker nodes Playbook
+  hosts: slurm_worker
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: 'nfs-client'
+      NFS_MOUNTS:
+        - fs: '{{groups.slurm_master[0]}}:/home'
+          mountpoint: '/home'
+    - role: autofs
+    - slurm-worker
+
+- name: Restart Slurmctld on head node
+  become: yes
+  hosts: slurm_master
+  tasks:
+    - service:
+        name=slurmctld
+        state=restarted
+      when: '{{is_debian_compatible}} and ({{is_debian_8_or_later}} or {{is_ubuntu_15_10_or_later}})'
+
+# Install conda and nextflow
+- include: conda.yml
+
+- name: Restart SLURMd after all config is done
+  become: yes
+  hosts: slurm_worker
+  tasks:
+    - service:
+        name=slurmd
+        state=restarted
+      when: '{{is_debian_compatible}} and ({{is_debian_8_or_later}} or {{is_ubuntu_15_10_or_later}})'
+    - service:
+        name=slurm-llnl
+        state=restarted
+      when: '{{is_debian_compatible}} and (not ({{is_debian_8_or_later}} or {{is_ubuntu_15_10_or_later}}))'
+    - service:
+        name=slurmd
+        state=restarted
+      when: '{{is_rhel7_compatible}}'
+    - service:
+        name=slurm
+        state=restarted
+      when: '{{is_rhel6_compatible}}'

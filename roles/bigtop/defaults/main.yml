@@ -1,0 +1,5 @@
+# bigtop/defaults/main.yml
+---
+
+# What release of Apache Bigtop to get packages from
+bigtop_release: '1.2.1'
