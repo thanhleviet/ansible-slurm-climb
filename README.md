@@ -7,7 +7,7 @@ As CLIMB is built on top of OpenStack, ideally, we can use elasticluster to inst
 - Login to Horizon [url not shown here] and create a your own private key pair. Download the key to you local computer
 - Initiate manually instances using **Launch a custom server** from https://bryn.climb.ac.uk/. The cluster should have 1 head and at least 1 node.
 
-## Installn slurm using Ansible playbook
+## Install slurm using Ansible playbook
 - Clone this repo:
 `git clone https://github.com/thanhleviet/ansible-slurm-climb`
 - Copy the key pair into the folder `ansible-slurm-climb`
